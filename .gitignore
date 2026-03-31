@@ -1,0 +1,18 @@
+# Sensitive credentials — never commit
+credentials.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# confidential data
+chrome_profile/
+session_cookies/

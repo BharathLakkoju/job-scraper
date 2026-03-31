@@ -1,0 +1,9 @@
+chrome_profile/
+session_cookies/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+*.pkl
+.git/

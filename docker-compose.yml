@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  jobflow:
+    build: .
+    ports:
+      - "5000:5000"
+    # Give Chrome enough shared memory (prevents tab crashes)
+    shm_size: '256mb'
+    volumes:
+      # These three files contain your personal data — mount from host, not baked into image
+      - ./credentials.json:/app/credentials.json:ro
+      - ./user_profile.json:/app/user_profile.json:ro
+      - ./Bharath_Lakkoju_Resume_.txt:/app/Bharath_Lakkoju_Resume_.txt:ro
+      # session_cookies must be writable — you'll upload .pkl files here
+      - ./session_cookies:/app/session_cookies
+      # Persistent Chrome profile so sessions survive container restarts
+      - chrome_data:/app/chrome_profile
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - jobflow
+    restart: unless-stopped
+
+volumes:
+  chrome_data:

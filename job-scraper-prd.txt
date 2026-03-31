@@ -1,0 +1,197 @@
+PRODUCT REQUIREMENTS DOCUMENT
+JobFlow AI
+Autonomous Job Application Automation System
+Scrape · Tailor · Track · Apply
+Author | Bharath
+
+Version | 1.0
+
+Date | March 2026
+
+Status | Draft — In Progress
+
+Target Stack | Python · Flask · n8n - self-hosted · OpenRouter · Google Sheets · JobSpy
+
+
+
+1. Executive Summary
+JobFlow AI is a locally-hosted, free-to-run automation system that handles the end-to-end job application pipeline for a software engineer. It scrapes job listings from LinkedIn, Indeed, and Naukri in real time, uses an AI language model to tailor a resume to each specific job description, logs every application to a live Google Sheets tracker, and monitors the applicant's Gmail inbox to automatically update application statuses when replies arrive.
+
+The system is designed to run entirely on a developer's local machine at zero recurring cost, using only free-tier tools and open-source software. When the local setup is validated, it can be migrated to a free Oracle Cloud VM to run 24/7 unattended.
+
+2. Problem Statement
+Applying for software engineering roles is a high-repetition, low-automation process that consumes dozens of hours per week. The core pain points are:
+
+Job discovery is fragmented — listings are spread across LinkedIn, Naukri, Indeed, and company career pages with no unified view.
+Every application ideally requires a tailored resume and cover letter, but doing this manually is extremely time-consuming.
+Tracking application status across multiple platforms is error-prone when done in spreadsheets manually.
+Missed emails from recruiters mean missed opportunities — there is no automatic status sync.
+
+JobFlow AI eliminates all of these manual steps, letting the job seeker focus only on preparing for interviews.
+
+3. Goals and Non-Goals
+3.1 Goals
+Scrape job listings from LinkedIn, Indeed, and Naukri automatically on demand.
+Use a free AI model (via OpenRouter) to tailor the user's base resume to each job description.
+Save each tailored resume to Google Drive with a structured naming convention.
+Log all discovered jobs to a Google Sheets tracker with company, role, status, URL, and date.
+Monitor Gmail for recruiter replies and automatically update the tracker status.
+Run entirely on local hardware at zero ongoing cost.
+Provide a clean n8n workflow UI as the operator dashboard.
+
+3.2 Non-Goals
+Fully automated form submission — the user reviews and submits each application manually.
+Mobile-native application — the interface is a browser-based n8n dashboard.
+Paid API or SaaS dependency — every component must have a free or self-hosted option.
+Multi-user support — this is a single-user personal automation tool.
+Interview scheduling automation — out of scope for v1.
+
+4. Target User
+JobFlow AI is built for a single primary persona:
+
+Name | The Active Job-Seeking Developer
+Profile | Full Stack / AI Engineer, 1–4 YOE, based in Hyderabad, actively targeting SDE-1/SDE-2 and AI Engineer roles across India and remote global positions.
+Pain Points | Spending 3–5 hours per day on job search with little signal. Resume tailoring is tedious. Missing recruiter emails. No consolidated view of where applications stand.
+Tech Comfort | High — comfortable with Python, terminal, Docker, APIs, and no-code tools like n8n.
+
+
+5. System Architecture
+The system consists of three loosely-coupled components that communicate over HTTP on localhost:
+
+Job Scraper Service — a Python/Flask server that runs JobSpy and exposes a /scrape endpoint.
+n8n Workflow Engine — the orchestration layer that calls the scraper, sends data to OpenRouter, and writes to Google Sheets/Drive.
+Gmail Watcher Workflow — a scheduled n8n workflow that reads the inbox and syncs statuses back to the sheet.
+
+Data flow end to end:
+
+User triggers Workflow 1 in n8n↓n8n POST → Flask /scrape → JobSpy scrapes LinkedIn, Indeed, Naukri↓n8n splits job list → OpenRouter (Llama 3.3 70B free) tailors resume per JD↓Tailored resume saved to Google Drive · Row appended to Google Sheets↓User reviews Sheet → applies manually via job URL → updates Status to Applied↓Workflow 2 (hourly) reads Gmail → AI classifies email → Sheet status updated automatically
+
+
+6. Technology Stack
+Layer | Tool / Library | Purpose
+Scraping | JobSpy (Python) | Unified scraper for LinkedIn, Indeed, Naukri, Glassdoor — free, no API key
+Web Server | Flask | Lightweight Python HTTP server exposing /scrape endpoint to n8n
+Orchestration | n8n (self-hosted) | Visual workflow engine; runs in Docker locally or Oracle Cloud VM
+AI / LLM | OpenRouter | Free tier — Llama 3.3 70B Instruct (200 req/day, 20 req/min)
+Job Tracking | Google Sheets | Live tracker; append and update rows per application
+Resume Storage | Google Drive | Stores tailored resumes with structured naming
+Email Parsing | Gmail API via n8n | Read inbox, classify recruiter replies, mark as read
+Auth | Google OAuth2 | Single OAuth credential covers Sheets, Drive, and Gmail
+Containerisation | Docker Desktop | Runs n8n locally with persistent volume
+Future Hosting | Oracle Cloud Free Tier | 4 vCPU / 24 GB RAM VM — always free, for 24/7 operation
+
+
+7. Feature Requirements
+Priority Key: P0 = Must Have · P1 = Should Have · P2 = Nice to Have
+
+Feature | Description | Priority | Phase
+Job Scraping | Scrape LinkedIn, Indeed, Naukri via JobSpy on demand with keyword + location filters | P0 | Phase 1
+Deduplication Filter | Skip jobs already present in the Google Sheet by comparing job URL | P0 | Phase 1
+AI Resume Tailoring | Send full JD to OpenRouter; receive a rewritten ATS-optimised resume | P0 | Phase 1
+Google Drive Save | Save tailored resume as a text/doc file named Company_Role_Date | P0 | Phase 1
+Google Sheets Logging | Append row with Company, Role, Location, Date, Status, URL, Resume link | P0 | Phase 1
+Gmail Status Sync | Hourly Gmail scan; AI classifies reply as Interview/Rejected/Offer/Other | P0 | Phase 2
+Sheet Status Update | Match email sender company to Sheet row and update the Status column | P0 | Phase 2
+Multi-source Scraping | User can choose which job boards to include per workflow run | P1 | Phase 1
+Date Filter | Only return jobs posted in the last 7 days by default | P1 | Phase 1
+Cover Letter Gen | Generate a tailored cover letter alongside the resume | P1 | Phase 2
+Salary Extraction | Log min/max salary from listings where available | P1 | Phase 2
+Remote Job Filter | Filter for remote-only or hybrid listings | P1 | Phase 2
+Status Dashboard | Simple HTML summary page of application stats from Google Sheets | P2 | Phase 3
+Cloud Migration Guide | Step-by-step guide to move the stack to Oracle Cloud for 24/7 runs | P2 | Phase 3
+
+
+8. Data Model — Google Sheets Tracker
+Each row in the Google Sheets tracker represents one job application. Columns:
+
+Column | Type | Description
+Company | String | Company name extracted from scraper
+Role | String | Job title from the listing
+Location | String | City / Remote as returned by JobSpy
+Applied Date | Date | YYYY-MM-DD format, set at time of scrape
+Status | Enum | Pending Review → Applied → Interview Scheduled → Offer → Rejected
+Job URL | URL | Direct link to the job posting — used for deduplication
+Resume Version | String | Google Drive file name of the tailored resume for this role
+Notes | String | Auto-set to 'Auto-scraped'; user can overwrite
+Salary Min | Number | Populated where available from the listing
+Salary Max | Number | Populated where available from the listing
+Source | String | LinkedIn / Indeed / Naukri
+
+
+9. API Contracts
+9.1 Flask Scraper — POST /scrape
+Request body (JSON):
+
+Field | Type | Description
+keywords | string | Search term e.g. "Full Stack Developer OR AI Engineer"
+location | string | "Hyderabad, India" — passed directly to JobSpy
+sources | string[] | ["linkedin", "indeed", "naukri"] — any subset
+num_jobs | integer | Max results per source. Default: 20
+hours_old | integer | Filter to jobs posted within N hours. Default: 168 (7 days)
+
+
+Response (JSON): { jobs: Job[], count: number } — where each Job object contains source, title, company, location, url, description, job_type, date_posted, is_remote, salary_min, salary_max.
+
+10. Development Roadmap
+Phase | Timeline | Deliverables
+Phase 0 | Week 1 | Install Docker, set up n8n locally, create Google Cloud project and OAuth credentials
+Phase 1 | Week 1–2 | Build Flask scraper with JobSpy, test /scrape endpoint, wire into n8n Workflow 1
+Phase 2 | Week 2–3 | Integrate OpenRouter resume tailoring, Google Drive save, Google Sheets logging
+Phase 3 | Week 3–4 | Build Gmail watcher Workflow 2, AI email classifier, Sheet status auto-update
+Phase 4 | Week 5 | End-to-end testing, rate limit tuning, prompt optimisation for resume quality
+Phase 5 | Post-MVP | Oracle Cloud deployment, cover letter generation, salary filter, stats dashboard
+
+
+11. Constraints and Risks
+11.1 Constraints
+Zero paid dependencies — every component must be free or open-source.
+Single-user only — no authentication layer, multi-tenancy, or shared data.
+Manual application step — job boards actively block fully automated form submission.
+OpenRouter free tier — 200 requests per day, 20 per minute. Limits large daily scrape runs.
+
+11.2 Risks and Mitigations
+Risk | Likelihood | Mitigation
+Job board blocks scraper IP | High | Add request delays; rotate user-agent strings; keep num_jobs low per run
+LinkedIn HTML structure changes | Medium | JobSpy is actively maintained — update library regularly via pip
+OpenRouter free model deprecated | Low | OpenRouter has multiple free fallback models; swap model ID in n8n body
+Google OAuth token expiry | Low | Re-authenticate via n8n credentials page; tokens auto-refresh when valid
+Gmail classifier misidentifies email | Medium | Prompt includes explicit JSON-only output; add fallback status 'Review Needed'
+n8n Docker container resets data | Low | Use named Docker volume (n8n_data) to persist workflow and credentials data
+
+
+12. Success Metrics
+Scraper returns at least 15 valid job listings per run across selected sources.
+AI-tailored resume is generated within 30 seconds per job description.
+Google Sheets tracker is updated within 60 seconds of workflow completion.
+Gmail status sync correctly classifies recruiter email type with at least 85% accuracy.
+Zero recurring monthly cost — all APIs and compute remain within free tiers.
+User applies to at least 10 curated roles per day with less than 30 minutes of active effort.
+
+13. Future Considerations (Post-MVP)
+One-click apply via browser automation (Playwright) for simple application forms.
+Cover letter generation as a parallel AI step alongside resume tailoring.
+WhatsApp or Telegram bot to receive daily job digest and status alerts.
+Dashboard web app showing funnel metrics: Scraped → Applied → Interview → Offer.
+Migrate to Oracle Cloud Always Free VM for 24/7 autonomous operation.
+Support for additional job boards: Glassdoor, Wellfound (AngelList), LinkedIn Easy Apply.
+
+14. Appendix — Key Configuration Reference
+OpenRouter Model
+Model ID: meta-llama/llama-3.3-70b-instruct:free
+Free limits: 200 requests/day · 20 requests/minute
+
+n8n Docker Command
+docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n n8nio/n8n
+
+Flask Scraper Start
+python scraper.py   →   runs on http://localhost:5000
+
+n8n to Scraper URL
+http://host.docker.internal:5000/scrape   (Windows/Mac Docker)
+http://<local-IP>:5000/scrape             (Linux Docker)
+
+Google OAuth Redirect URI
+http://localhost:5678/rest/oauth2-credential/callback
+
+
+JobFlow AI · PRD v1.0 · March 2026 · Confidential

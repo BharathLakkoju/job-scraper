@@ -1,0 +1,12 @@
+flask
+requests
+beautifulsoup4
+lxml
+selenium
+webdriver-manager
+undetected-chromedriver
+gspread
+google-auth
+python-jobspy
+websockets
+python-dotenv

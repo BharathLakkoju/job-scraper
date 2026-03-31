@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobFlow AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--text-main);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: var(--border);
+            cursor: not-allowed;
+        }
+
+        .status {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .job-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
+
+        .match-badge {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .company {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin: 0.25rem 0 1rem 0;
+            font-weight: 500;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .tag.source {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            text-transform: capitalize;
+        }
+
+        .description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .apply-btn {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .apply-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .loader {
+            display: none;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>JobFlow AI Dashboard</h1>
+        <div class="controls">
+            <span class="status" id="status-text">Ready.</span>
+            <div class="loader" id="loader"></div>
+            <button id="scrape-btn" onclick="triggerScrape()">Scrape Jobs</button>
+        </div>
+    </div>
+
+    <div class="job-grid" id="job-grid">
+        <!-- Jobs will be populated here -->
+    </div>
+
+    <script>
+        async function triggerScrape() {
+            const btn = document.getElementById('scrape-btn');
+            const statusText = document.getElementById('status-text');
+            const loader = document.getElementById('loader');
+            const grid = document.getElementById('job-grid');
+
+            btn.disabled = true;
+            statusText.innerText = "Scraping in progress... this may take a few minutes.";
+            loader.style.display = "inline-block";
+            grid.innerHTML = "";
+
+            try {
+                // Fetch default configuration implicitly via backend endpoint
+                const response = await fetch('/scrape', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        num_jobs: 100
+                    })
+                });
+
+                if (!response.ok) throw new Error("Scrape failed: " + response.statusText);
+
+                const data = await response.json();
+                statusText.innerText = `Found ${data.filtered_count} unique jobs. Deduplicated from ${data.raw_count}.`;
+
+                if (data.jobs.length === 0) {
+                    grid.innerHTML = "<div style='color: var(--text-muted)'>No jobs found.</div>";
+                    return;
+                }
+
+                data.jobs.forEach(job => {
+                    const card = document.createElement('div');
+                    card.className = 'job-card';
+
+                    const matchScore = job.resume_match_percent ? `${job.resume_match_percent}% Match` : 'New';
+
+                    let tagsHTML = `<span class="tag source">${job.source}</span>`;
+                    if (job.location) tagsHTML += `<span class="tag">${job.location}</span>`;
+                    if (job.is_remote) tagsHTML += `<span class="tag" style="color: #a855f7; background: rgba(168,85,247,0.1)">Remote</span>`;
+                    if (job.salary_min || job.salary_max) {
+                        const sal = [job.salary_min, job.salary_max].filter(Boolean).join(" - ");
+                        tagsHTML += `<span class="tag" style="color: #10b981; background: rgba(16,185,129,0.1)">💰 ${sal}</span>`;
+                    }
+                    if (job.date_posted) tagsHTML += `<span class="tag">📅 ${job.date_posted}</span>`;
+
+                    let applyButton = job.url
+                        ? `<a href="${job.url}" target="_blank" class="apply-btn">Apply Now</a>`
+                        : `<a href="#" class="apply-btn" style="opacity:0.5; cursor:not-allowed">Apply Link Hidden</a>`;
+
+                    card.innerHTML = `
+                        <div class="job-header">
+                            <h2 class="job-title">${job.title}</h2>
+                            <span class="match-badge">${matchScore}</span>
+                        </div>
+                        <h3 class="company">${job.company || 'Unknown Company'}</h3>
+                        <div class="tags">${tagsHTML}</div>
+                        <div class="description">${job.description || 'No description provided.'}</div>
+                        ${applyButton}
+                    `;
+                    grid.appendChild(card);
+                });
+
+            } catch (err) {
+                statusText.innerText = "Error: " + err.message;
+            } finally {
+                btn.disabled = false;
+                loader.style.display = "none";
+            }
+        }
+    </script>
+</body>
+
+</html>

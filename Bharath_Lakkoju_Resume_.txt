@@ -1,0 +1,76 @@
+Bharath Lakkoju
+Full Stack Developer — AI Engineer
+
+ +91-7032380489 # lbh.lbharath@gmail.com ï linkedin.com/in/bharathlakkoju
+§ github.com/bharathlakkoju  bharathlakkoju.vercel.app
+
+Professional Summary
+I’m a Full Stack Developer with 2+ year of experience building scalable web and AI integrated applications. Proven track record of
+increasing user engagement by 60% and reducing operational costs by 75% through innovative solutions. Expert in Next.js, Node.js, and
+AI integration. Successfully deployed 8+ applications serving 100+ users with focus on performance optimization and user experience.
+
+Technical Skills
+Languages: JavaScript, TypeScript, Python, SQL
+Frontend: React.js, Next.js, Tailwind CSS, Redux
+Backend: Node.js, Express.js, RESTful APIs, Microservices, Git
+Databases: PostgreSQL, MySQL, MongoDB
+AI/ML: Gemini API, OpenAI Integration, AI Chatbot Development, Personalized Recommendation Systems
+
+Professional Experience
+Developer I - Software Engineering
+Sep 2024 – Present
+UST Global
+Hyderabad, Telangana
+• Developed React Native & Strapi-based mobile application for health registration and tracking, implementing reward system that
+increased user engagement by 60% and health development intake by 98%
+• Engineered Angular and Node.js application with WCS data integration, implementing Digitization Banner component that
+reduced in-hand posts by 75% through automated email redirection
+• Developed and integrated personalized AI chatbot increasing net active users by 40% monthly, enhancing customer support
+capabilities
+• Built proof-of-concept mobile application for personalized health insurance recommendations, achieving 95% success rate in
+matching users with suitable insurance plans
+• Contributed to migration of Java Spring services to Node.js microservices with Angular frontend, improving system performance
+and maintainability
+Founding Frontend Engineer
+Aug 2023 – Sep 2024
+WAIGENIE (Startup)
+Remote
+• Architected and developed 98% of frontend functionality using Next.js, Tailwind CSS, and Zustand state management from scratch
+• Built complete web application with smooth animations, custom effects, and responsive design optimized for performance
+• Integrated MongoDB and Prisma ORM for efficient data management with Gemini API for AI-powered features
+• Implemented credit-based system with 24-hour refresh cycles and RazorPay payment gateway for subscription management
+• Led team of interns as Frontend Lead, ensuring timely project completion and quality deliverables through code reviews
+• Optimized API integration with lazy retrieval techniques, reducing response times by 40% and improving user experience
+
+Key Projects
+AI Powered Saas Platform - waigenie.tech | Next.js, MongoDB, ORM, Gemini API, RazorPay
+1000+ users
+• Architected and developed 98% of frontend for production AI SaaS platform using Next.js, Tailwind CSS, and Zustand
+• Built credit-based system with 24-hour refresh cycles, integrated RazorPay payment gateway for subscription management
+• Optimized API integration with lazy retrieval techniques, reducing response times by 40% and improving UX
+• Implemented responsive design with smooth animations and custom effects, deployed and maintained production environment
+Task Management Web App - doit.io | Next.js 14, PostgreSQL, NextAuth, Tailwind CSS, Shadcn/ui
+• Developed full-stack task management application with focus on software architecture and scalable design patterns
+• Implemented TDD with automated testing and CI/CD pipelines for containerized deployment ensuring 99% uptime
+• Integrated Elasticsearch for optimized search performance and JWT-based authentication for secure access control
+Privacy Policy Red Flags Detector Extension | JavaScript, Chrome API, Python, Scikit-Learn
+• Chrome extension that analyzes privacy policies using ML to detect red flags and concerning clauses for user protection
+• Implemented real-time AI-powered analysis helping users make informed decisions about data privacy and security
+
+Education
+Maharaj Vijayaram Gajapathi Raj College of Engineering
+Dec 2020 – Apr 2024
+Bachelor of Technology - Information Technology; GPA: 8.10/10
+Vizianagaram, AP
+• Relevant Coursework: Data Structures, Algorithms, Operating Systems, Web Development, Databases, Design Patterns
+
+Achievements & Impact
+Deployed 8+ full-stack web and mobile applications serving 100+ active users with 75% uptime
+Increased user engagement by 60% through innovative reward system implementation
+• Reduced operational costs by 75% through automated digitization banner component
+• Led frontend team of interns, mentoring on best practices and ensuring project delivery
+• Achieved 95% accuracy in AI-powered insurance recommendation system
+•
+•
+
+
